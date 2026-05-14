@@ -1,0 +1,20 @@
+services:
+  - type: web
+    name: gyan-whatsapp-bot
+    runtime: docker
+    region: oregon
+    plan: free
+    dockerContext: .
+    dockerfilePath: Dockerfile
+    healthCheckPath: /health
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: WWEBJS_HEADLESS
+        value: "true"
+      - key: BACKEND_URL
+        sync: false
+    disk:
+      name: whatsapp-session
+      mountPath: /app/.wwebjs_auth
+      sizeGB: 1

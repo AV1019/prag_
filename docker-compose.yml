@@ -1,0 +1,43 @@
+version: '3.8'
+
+services:
+  whatsapp-bot:
+    build: .
+    container_name: gyan-whatsapp-bot
+    environment:
+      - NODE_ENV=production
+      - BACKEND_URL=${BACKEND_URL:-http://backend:8000}
+      - REDIS_URL=redis://redis:6379
+      - WWEBJS_SESSION_PATH=/app/.wwebjs_auth
+      - INTERNAL_API_KEY=${INTERNAL_API_KEY}
+      - GROUP_FEATURES_ENABLED=${GROUP_FEATURES_ENABLED:-true}
+      - MESSAGES_PER_MINUTE=${MESSAGES_PER_MINUTE:-20}
+      - LOG_LEVEL=${LOG_LEVEL:-info}
+    volumes:
+      - whatsapp-auth:/app/.wwebjs_auth
+      - whatsapp-cache:/app/.wwebjs_cache
+      - ./media/qr:/app/media/qr
+    depends_on:
+      - redis
+    restart: unless-stopped
+    networks:
+      - whatsapp-network
+
+  redis:
+    image: redis:7-alpine
+    container_name: gyan-redis
+    volumes:
+      - redis-data:/data
+    ports:
+      - "6379:6379"
+    networks:
+      - whatsapp-network
+
+volumes:
+  whatsapp-auth:
+  whatsapp-cache:
+  redis-data:
+
+networks:
+  whatsapp-network:
+    driver: bridge
